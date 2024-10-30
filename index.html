@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Tank Problem</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+            gap: 10px;
+        }
+        .display{
+            display: flex;
+            flex-direction: row;
+            gap: 25px;
+        }
+        #water-tank {
+            display: grid;
+            margin-top: 10px;
+        }
+        #water {
+            display: grid;
+            margin-top: 10px;
+        }
+        .block {
+            width: 30px;
+            height: 30px;
+            background-color: gray;
+            border: 1px black solid;
+        }
+        .water {
+            width: 30px;
+            height: 30px;
+            background-color: cadetblue;
+            border: 1px black solid;
+        }
+        .empty {
+            width: 30px;
+            height: 30px;
+            background-color: whitesmoke;
+            border: 1px black solid;
+        }
+    </style>
+</head>
+<body>
+    <h1>Water Tank Problem</h1>
+    <label for="heights">Enter block heights (comma separated):</label>
+    <input type="text" id="heights" placeholder="e.g., 0,4,0,0,0,6,0,6,4,0">
+    <button onclick="calculateWater()">Calculate Water</button>
+    <p id="result"></p>
+    <div class="display">
+        <div id="water-tank"></div>
+        <div id="water"></div>
+    </div>
+
+
+    <script>
+        function calculateWater() {
+            const input = document.getElementById('heights').value;
+            const heights = input.split(',').map(Number);
+            const n = heights.length;
+            
+            if (n === 0) return;
+            
+            // Calculate the amount of water
+            let leftMax = Array(n).fill(0);
+            let rightMax = Array(n).fill(0);
+            leftMax[0] = heights[0];
+            for (let i = 1; i < n; i++) {
+                leftMax[i] = Math.max(leftMax[i - 1], heights[i]);
+            }
+            rightMax[n - 1] = heights[n - 1];
+            for (let i = n - 2; i >= 0; i--) {
+                rightMax[i] = Math.max(rightMax[i + 1], heights[i]);
+            }
+
+            let water = 0;
+            for (let i = 0; i < n; i++) {
+                water += Math.min(leftMax[i], rightMax[i]) - heights[i];
+            }
+            
+            document.getElementById('result').textContent = `Water stored: ${water} units`;
+
+            // Display the tank
+            displayTank(heights, leftMax, rightMax);
+            // Display only water
+            displayWater(heights, leftMax, rightMax);
+        }
+
+        function displayTank(heights, leftMax, rightMax) {
+            const tank = document.getElementById('water-tank');
+            tank.innerHTML = ''; // Clear previous tank display
+            const maxHeight = Math.max(...heights);
+
+            tank.style.gridTemplateColumns = `repeat(${heights.length}, auto)`;
+
+            for (let row = maxHeight; row > 0; row--) {
+                for (let i = 0; i < heights.length; i++) {
+                    const cell = document.createElement('div');
+                    if (heights[i] >= row) {
+                        cell.classList.add('block');
+                    } else if (Math.min(leftMax[i], rightMax[i]) >= row) {
+                        cell.classList.add('water');
+                    } else {
+                        cell.classList.add('empty');
+                    }
+                    tank.appendChild(cell);
+                }
+            }
+        }
+
+        function displayWater(heights, leftMax, rightMax) {
+            const tank = document.getElementById('water');
+            tank.innerHTML = ''; // Clear previous tank display
+            const maxHeight = Math.max(...heights);
+
+            tank.style.gridTemplateColumns = `repeat(${heights.length}, auto)`;
+
+            for (let row = maxHeight; row > 0; row--) {
+                for (let i = 0; i < heights.length; i++) {
+                    const cell = document.createElement('div');
+                    if (heights[i] >= row) {
+                        cell.classList.add('empty');
+                    } else if (Math.min(leftMax[i], rightMax[i]) >= row) {
+                        cell.classList.add('water');
+                    } else {
+                        cell.classList.add('empty');
+                    }
+                    tank.appendChild(cell);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
